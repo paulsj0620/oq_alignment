@@ -1,0 +1,4 @@
+
+genome: /data/ref/human/human_g1k_v37.fasta
+bwaidx: /data/ref/human/human_g1k_v37.fasta
+gatk35: /data/med3_data/DATA1/tools/gatk-3.5/GenomeAnalysisTK.jar

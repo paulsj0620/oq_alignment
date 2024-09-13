@@ -1,0 +1,4 @@
+samples:
+  TEST01:
+    fq1: /data/SJ/playground/oq_align/rawdata/TEST01/TEST01_1.fq.gz
+    fq2: /data/SJ/playground/oq_align/rawdata/TEST01/TEST01_2.fq.gz
