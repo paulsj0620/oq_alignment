@@ -1,7 +1,6 @@
 import os
 import pyfiglet
 from bin.config import Utils
-from bin.config_ts import Utils
 from snakemake.utils import min_version
 min_version('6.1.1')
 
