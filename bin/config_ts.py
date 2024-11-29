@@ -48,6 +48,7 @@ class Utils:
 
     def add_config(self, config):
         config["od_smp_s"] = [sample for sample in config["samples"]]
+        print(config)
         return config
 
     def print_config(self, config):

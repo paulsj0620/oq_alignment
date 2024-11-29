@@ -6,8 +6,18 @@ rule bwa:
         sam="analysis/bwa/{sample}/{sample}.sam"
     wildcard_constraints:
         sample="[^/]+",
-    #benchmark: "benchmarks/bwa.{sample}.txt"
-    threads: 3
+    threads: 8
+    message: "BWA using bwa mem on {wildcards.sample}"
+    container: "docker://docker.io/biocontainers/bwa:v0.7.17_cv1"
+    log:
+        stdout="logs/bwa/{sample}.stdout",
+        stderr="logs/bwa/{sample}.stderr"
+    resources:
+        tasks=2,
+        mem_mb=1,
+        mpi="srun",
+        runtime=2880,
+        tasks_per_node=1
     params:
         tmp="analysis/bwa/{sample}/temp",
         rg="\'@RG\\tID:{sample}\\tLB:1\\tSM:{sample}\\tPL:ILLUMINA'",
@@ -27,7 +37,14 @@ rule sortbam:
     wildcard_constraints:
         sample="[^/]+",
     #benchmark: "benchmarks/sortbam.{sample}.txt"
-    threads: 3
+    threads: 4
+    resources:
+        tasks=2,
+        mem_mb=1,
+        mpi="srun",
+        runtime=2880,   
+        tasks_per_node=1   
+    container: "docker://docker.io/biocontainers/samtools:v1.9-4-deb_cv1"
     params:
         tmp="analysis/bwa/{sample}/temp",
         ref_genome=config['ref_genome']
@@ -47,7 +64,14 @@ rule index_sbam:
     wildcard_constraints:
         sample="[^/]+",
     #benchmark: "benchmarks/index_sbam.{sample}.txt"
+    resources:
+        tasks=2,
+        mem_mb=1,
+        mpi="srun",
+        runtime=2880,   
+        tasks_per_node=1
     threads: 1
+    container: "docker://docker.io/biocontainers/samtools:v1.9-4-deb_cv1"
     shell:
         "samtools index {input.bam}"
 
@@ -61,6 +85,13 @@ rule md_sbam:
         sample="[^/]+",
     benchmark: "benchmarks/md_sbam.{sample}.txt"
     threads: 1
+    container: "docker://docker.io/biocontainers/picard:v2.3.0_cv3"
+    resources:
+        tasks=2,
+        mem_mb=1,
+        mpi="srun",
+        runtime=2880,   
+        tasks_per_node=1
     params:
         tmp="analysis/bwa/{sample}/temp",
         java_opts="-Xms8g -Xmx30g"
@@ -87,6 +118,13 @@ rule index_mdbam:
         sample="[^/]+",
     #benchmark: "benchmarks/index_mdbam.{sample}.txt"
     threads: 1
+    resources:
+        tasks=2,
+        mem_mb=1,
+        mpi="srun",
+        runtime=2880,   
+        tasks_per_node=1
+    container: "docker://docker.io/biocontainers/samtools:v1.9-4-deb_cv1"
     shell:
         "samtools index {input.bam}"
 

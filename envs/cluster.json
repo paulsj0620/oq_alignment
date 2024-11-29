@@ -3,9 +3,9 @@
         "time": "12:00:00",
         "threads": "1",
         "mem": "30",
-        "jobName": "{rule}.{wildcards.sample}.{wildcards.lane}",
-        "output": "logs/{rule}.{wildcards.sample}.{wildcards.lane}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.{wildcards.lane}.stderr"
+        "jobName": "{rule}.{wildcards.sample}.",
+        "output": "logs/{rule}.{wildcards.sample}.stdout",
+        "error": "logs/{rule}.{wildcards.sample}.stderr"
     },
     "bwa": {
         "threads": "16"
@@ -13,49 +13,30 @@
     "sortbam": {
         "threads": "16"
     },
-    "dedupbam": {
+    "index_sbam": {
+        "threads": "1"
+    },
+    "md_sbam": {
         "threads": "16"
     },
-    "mergebam": {
-        "threads": "16",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
-    },
-    "newrg": {
-        "threads": "16",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
-    },
-    "bam_stats": {
-        "threads": "16",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
-    },
-    "bam_depth": {
-        "threads": "8",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
+    "index_mdbam": {
+        "threads": "1"
     },
     "haplotypecaller": {
-        "threads": "8",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
+        "threads": "16"
     },
-    "get96rs": {
-        "threads": "1",
-        "jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
+    "realigner_tc": {
+        "threads": "8"
     },
-    "collectwgsmetrics": {
-	"threads": "8",
-	"jobName": "{rule}.{wildcards.sample}",
-        "output": "logs/{rule}.{wildcards.sample}.stdout",
-        "error": "logs/{rule}.{wildcards.sample}.stderr"
-    }
-}
+    "indelrealigner": {
+        "threads": "16"
+    },
+    "index_irbam": {
+        "threads": "1"
+    },
+    "zip_vcf": {
+        "threads": "8"
+    },
+    "index_vcf": {
+        "threads": "1"
+}}

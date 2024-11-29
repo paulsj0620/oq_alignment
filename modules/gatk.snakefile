@@ -6,7 +6,14 @@ rule haplotypecaller:
     wildcard_constraints:
         sample="[^/]+",
     benchmark: "benchmarks/haplotypecaller.{sample}.txt"
-    threads: 1
+    threads: 16
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
+    container: "docker://docker.io/broadinstitute/gatk:4.0.5.1"
     params:
         tmp="analysis/gatk/{sample}/temp",
         java_opts="-Xmx4g"
@@ -21,13 +28,20 @@ rule haplotypecaller:
 
 rule realigner_tc:
     input:
-        bam="analysis/bwa/{sample}/{sample}.s.md.bam"
+        bam="analysis/bwa/{sample}/{sample}.s.md.bam",
+        bai="analysis/bwa/{sample}/{sample}.s.md.bam.bai"
     output:
         intervals="analysis/gatk/{sample}/{sample}.s.md.bam.intervals"
     wildcard_constraints:
         sample="[^/]+",
     benchmark: "benchmarks/realigner_tc.{sample}.txt"
     threads: 3
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
     params:
         tmp="analysis/haplotypecaller/{sample}/temp",
         java_opts="-Xms8g -Xmx30g"
@@ -50,7 +64,13 @@ rule indelrealigner:
     wildcard_constraints:                            
         sample="[^/]+",                              
     benchmark: "benchmarks/realigner_tc.{sample}.txt"
-    params:                                          
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
+    params:
         tmp="analysis/haplotypecaller/{sample}/temp",
         java_opts="-Xms8g -Xmx30g"
     shell:
@@ -72,6 +92,13 @@ rule index_irbam:
         sample="[^/]+",
     #benchmark: "benchmarks/index_irbam.{sample}.txt"
     threads: 1
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
+    container: "docker://docker.io/biocontainers/samtools:v1.9-4-deb_cv1"
     shell:
         "samtools index {input.bam}"
 
@@ -80,6 +107,12 @@ rule zip_vcf:
         vcf="analysis/gatk/{sample}/{sample}.vcf"
     output:
         vcf="analysis/gatk/{sample}/{sample}.vcf.gz"
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
     wildcard_constraints:
         sample="[^/]+",
     #benchmark: "benchmarks/index_irbam.{sample}.txt"
@@ -94,5 +127,11 @@ rule index_vcf:
     wildcard_constraints:
         sample="[^/]+",
     #benchmark: "benchmarks/index_irbam.{sample}.txt"
+    resources:          
+        tasks=2,        
+        mem_mb=1,       
+        mpi="srun",     
+        runtime=2880,   
+        tasks_per_node=1
     shell:
         "tabix -p vcf {input.vcf}"
