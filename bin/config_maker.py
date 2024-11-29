@@ -3,48 +3,58 @@ import os, sys
 
 cwd = os.getcwd()
 rawdata_path = cwd + '/rawdata'
+os.mkdir(rawdata_path)
+sample_list = glob.glob("*_1.fq.gz")
+print(sample_list)
+sample_dict = {}
 
-input_sample_list = open("sample.list.txt", 'r')
-output_config_file = open("dev.config.yaml", 'w')
+for sample in sample_list :
+    sample_id = sample.split("_1.fq.gz")[0]
+
+    sample_path = "{0}/{1}".format(rawdata_path, sample_id)
+    os.mkdir(sample_path)
+
+    sample_dict[sample_id] = {}
+    os.system("mv {0}*gz {1}/".format(sample_id, sample_path))
+
+files_list = glob.glob("{0}/*/*gz".format(rawdata_path))
+
+output_config_file = open("samples.config.yaml", 'w')
 output_config_file.write("samples:" + "\n")
 
-for line in input_sample_list :
-    split_line = line.rstrip("\r\n").split("\t")
-    TBI_ID = split_line[0]
-    CST_ID = split_line[1]
+for sample in sample_dict :
+    for item in files_list :
+        if sample in item :
+            if "_1.fq.gz" in item :
+                fq1 = item
+            elif "_2.fq.gz" in item :
+                fq2 = item
 
-    sample_rawdata_path = rawdata_path + "/" + TBI_ID
-    output_config_file.write("  Sample_{0}:".format(CST_ID) + "\n")
+    sample_dict[sample] = {"fastq1" : fq1, "fastq2" : fq2}
 
-    file_list = glob.glob(sample_rawdata_path + "/*gz")
-    sorted_file_list = sorted(file_list)
+for sample in sample_dict :
+    output_config_file.write("  {0}:".format(sample) + "\n")
+    output_config_file.write("    fq1: {0}".format(sample_dict[sample]["fastq1"]) + "\n")
+    output_config_file.write("    fq2: {0}".format(sample_dict[sample]["fastq2"]) + "\n")
 
-    lane_count = 0
-
-    for item in sorted_file_list :
-        if "R1" in item or "_1" in item :
-            lane_count += 1
-            output_config_file.write("    lane{0}:".format(lane_count) + "\n")
-            fr_seq = item
-        elif "R2" in item or "_2" in item :
-            rr_seq = item
-            output_config_file.write("      fq1: {0}".format(fr_seq) + "\n")
-            output_config_file.write("      fq2: {0}".format(rr_seq) + "\n")
 output_config_file.close()
 
-output_cmd_file = open("dev.cmd.sh", 'w')
+output_cmd_file = open("pipline.cmd.sh", 'w')
 output_cmd_file.write('\n')
 output_cmd_file.write('wkdir="{0}"\n'.format(cwd))
-output_cmd_file.write('conffn="{0}/dev.config.yaml"\n'.format(cwd))
+output_cmd_file.write('conffn="{0}/samples.config.yaml"\n'.format(cwd))
 output_cmd_file.write('\n')
 output_cmd_file.write("mkdir -p ${wkdir}/logs\n")
 output_cmd_file.write('cmd=\"snakemake \\\n')
 output_cmd_file.write("    --cores all \\\n")
 output_cmd_file.write("    --printshellcmds \\\n")
 output_cmd_file.write("    --snakefile /data/SJ/pipeline/onequeue_alignment/Snakefile \\\n")
-output_cmd_file.write("    --cluster-config /data/SJ/pipeline/onequeue_alignment/envs/cluster.json \\\n")
+output_cmd_file.write("    --config 'ref=/data/SJ/pipeline/onequeue_alignment/refs/ref.yaml' \\\n")
 output_cmd_file.write("    --max-jobs-per-second 5 \\\n")
 output_cmd_file.write("    --jobs 192\n")
 output_cmd_file.write("    --configfile ${conffn} \\\n")
 output_cmd_file.write("    --directory ${wkdir} \\\n")
+output_cmd_file.write("    --executor slurm --default-resources slurm_account=pipeline slurm_partition=cpu --slurm-init-seconds-before-status-checks=60 \\\n")
+output_cmd_file.write("    --use-singularity \\\n")
+output_cmd_file.write("    --singularity-args '--bind /data,/tmp'\" \n")
 output_cmd_file.write("echo $cmd")
